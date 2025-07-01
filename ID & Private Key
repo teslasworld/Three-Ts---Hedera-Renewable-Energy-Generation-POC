@@ -1,0 +1,35 @@
+const {
+  AccountId,
+  PrivateKey,
+  Client,
+  TransferTransaction,
+  Hbar
+} = require("@hashgraph/sdk");
+
+async function main() {
+  // ── Your testnet account, now updated to the NEW key ───────────
+  const OP_ID   = AccountId.fromString("0.0.6255880");
+  const NEW_KEY = PrivateKey.fromString(
+    // DER‑encoded ED25519 private key you provided
+    "3030020100300706052b8104000a04220420d7a207928653131acc3068bd64d0c2e6d7ca154a5111d2dbbc61fdb9ce73b52d"
+  );
+
+  // ── Setup Hedera client with your NEW key ───────────────────────
+  const client = Client.forTestnet();
+  client.setOperator(OP_ID, NEW_KEY);
+
+  // ── Now transfer 1 HBAR to another account ──────────────────────
+  const RECIPIENT = AccountId.fromString("0.0.6255927");
+  const transferTx = await new TransferTransaction()
+    .addHbarTransfer(OP_ID,      new Hbar(-1))  // send 1 HBAR
+    .addHbarTransfer(RECIPIENT,  new Hbar(1))   // receive 1 HBAR
+    .execute(client);
+
+  const receipt = await transferTx.getReceipt(client);
+  console.log("💸 Transfer status:", receipt.status.toString());
+  console.log("🔍 Tx ID:", transferTx.transactionId.toString());
+
+  client.close();
+}
+
+main();
