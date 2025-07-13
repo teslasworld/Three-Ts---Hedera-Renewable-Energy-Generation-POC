@@ -93,7 +93,7 @@ deploySystem();
 
 ### How to Run This Successfully:
 
-1. **Go to Hedera Playground**: [hedera.com/developer-playground](https://hedera.com/developer-playground)
+1. **Go to Hedera Playground**: [hedera.com/developer-playground] link : https://dev.portal.hedera.com/playground
 2. **Select JavaScript**: In the top-right corner
 3. **Paste the Code**: Replace any existing code with the code above
 4. **Click "Run"**: The ▶ button in the top-right corner
@@ -314,7 +314,7 @@ deploySystem();
 ### How to Run:
 
 1. **Copy the entire code above**
-2. Go to [Hedera Playground](https://hedera.com/developer-playground)
+2. Go to [Hedera Playground] link : https://dev.portal.hedera.com/playground
 3. Select **JavaScript**
 4. Paste the code
 5. Click **▶ Run**
