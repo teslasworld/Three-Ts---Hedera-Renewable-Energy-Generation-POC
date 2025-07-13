@@ -1,0 +1,68 @@
+On first update, Hedera accepts a transaction signed by your old (ED25519) key.
+
+You then immediately switch your client to use the new (ECDSA) key.
+
+For any further updates or transfers, you must sign with the current valid key only.
+
+If you try to re‐use the old key after it’s been replaced, the network will reject you with INVALID_SIGNATURE.
+
+
+
+** How to Genarate New Keys **
+
+
+const {
+  AccountId,
+  PrivateKey,
+  Client,
+  AccountUpdateTransaction
+} = require("@hashgraph/sdk"); // Ensure @hashgraph/sdk is installed
+
+async function main() {
+  const OLD_ACCOUNT_ID = AccountId.fromString("0.0.5705036");
+  const OLD_PRIVATE_KEY = PrivateKey.fromStringECDSA("0x2a791dd050ff8fe3dbc174b5a2347aeca932588a0eba968a0e008c4ea4981d80");
+
+  // Setup Hedera client
+  const client = Client.forTestnet();
+  client.setOperator(OLD_ACCOUNT_ID, OLD_PRIVATE_KEY);
+
+  try {
+    // Generate new ECDSA key
+    const newKey = PrivateKey.generateECDSA();
+    console.log("🔐 New Private Key:", newKey.toString());
+    console.log("🔑 New Public Key:", newKey.publicKey.toString());
+
+    // Create update transaction
+    const tx = await new AccountUpdateTransaction()
+      .setAccountId(OLD_ACCOUNT_ID)
+      .setKey(newKey.publicKey)
+      .freezeWith(client)
+      .sign(OLD_PRIVATE_KEY);
+
+    const signedTx = await tx.sign(newKey);
+    const response = await signedTx.execute(client);
+    const receipt = await response.getReceipt(client);
+
+    console.log("✅ Account key updated.");
+    console.log("📄 Status:", receipt.status.toString());
+    console.log("🔁 Tx ID:", response.transactionId.toString());
+  } catch (err) {
+    console.error("❌ Error updating account key:", err);
+  }
+}
+
+main();
+
+
+You always sign with the current valid key
+
+In the first update you sign with OLD_PRIVATE_KEY (the key Hedera still recognizes).
+
+After that update goes through, that old key is invalidated and the network only accepts the newly installed key.
+
+## OUTPUT
+🔐 New Private Key: 3030020100300706052b8104000a042204200ad60a32e8b28b3dd80f34652b23fde46c5a6d2dc8c1a59b4040e0d59aded6d3
+🔑 New Public Key: 302d300706052b8104000a03220002200c83086b776693afbab3d34381a0d62cbf88e6af41b890a15634f40c8011f4
+✅ Account key updated.
+📄 Status: SUCCESS
+🔁 Tx ID: 0.0.5705036@1752404700.32846720
